@@ -9,14 +9,14 @@ import android.content.Context;
  *
  * 如果该策略不能满足需求，建议选用其他策略，或者App自己实现自定义策略
  */
-class MergePolicyGlobal extends MergePolicyBase {
+public class MergePolicyGlobal extends MergePolicyBase {
 
     MergePolicyGlobal(Context context, String name) {
         super(context, name);
     }
 
     /**
-     * 所有listener公用一个category, 所有Listener中的所有action合并到一个全局的receiver中监听
+     * 所有Listener公用一个category, 所有Listener中的所有action合并到一个全局的receiver中监听
      * @param listener
      * @return
      */
@@ -26,7 +26,7 @@ class MergePolicyGlobal extends MergePolicyBase {
     }
 
     /**
-     * 如果Listener指定了scheme,那么当前MergePolicy无法支持该Listener
+     * 如果Listener指定了scheme,那么当前Policy无法支持该Listener
      * 因为在注册广播的时候指定permission,会导致合并的其他Listener无法接收广播
      * @return
      */
@@ -36,7 +36,7 @@ class MergePolicyGlobal extends MergePolicyBase {
     }
 
     /**
-     * 如果Listener指定了permission,那么当前MergePolicy无法支持该Listener
+     * 如果Listener指定了permission,那么当前Policy无法支持该Listener
      * 因为在注册广播的时候指定permission,会导致合并的其他Listener无法接收广播
      * @return
      */

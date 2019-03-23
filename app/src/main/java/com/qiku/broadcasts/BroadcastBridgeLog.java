@@ -44,7 +44,7 @@ final class BroadcastBridgeLog {
     }
 
     private static boolean isLogOn() {
-        //可改为用属性动态配置
+        //TODO : 可改为用属性动态控制log开关
         return true;
     }
 

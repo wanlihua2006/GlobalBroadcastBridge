@@ -10,7 +10,13 @@ import java.util.Objects;
 
 /**
  * BroadcastBridge是一个管理动态广播的通用模块，目的是合并App中的广播，防止在App中过度注册重复广播。
- * 目前支持两种合并策略: MERGE_GLOBAL和MERGE_AUTO，默认是MERGE_AUTO。
+ * 目前支持以下合并策略:
+ *     MERGE_GLOBAL
+ *     MERGE_AUTO
+ *     MERGE_SCHEME
+ *     MERGE_PERMISSION
+ *
+ * 默认是MERGE_AUTO。
  *
  * 合并后的广播优先级，是该Receiver对应的所有Listener中指定的优先级最高值。
  *
@@ -45,7 +51,7 @@ public class BroadcastBridge {
          * 创建Listener对象
          *
          * @param name 在同一个进程中，每个Listener都要有一个唯一的名字
-         * @param priority 广播优先级
+         * @param priority 广播优先级,如果多个Listener合并后，最终的优先级为所有Listener中最大值
          * @param actions 该listener关注的action
          */
         public Listener(String name, int priority, String ... actions) {
@@ -65,7 +71,7 @@ public class BroadcastBridge {
          * 创建Listener对象
          *
          * @param name 在同一个进程中，每个Listener都要有一个唯一的名字
-         * @param actions 该listener关注的action
+         * @param actions 该listener监听的action
          */
         public Listener(String name, String ... actions) {
             this(name, PRIORITY_DEFAULT, actions);
@@ -84,9 +90,8 @@ public class BroadcastBridge {
         }
 
         /**
-         * 像PACKAGE_ADD,PACKAGE_REMOVED,PACKAGE_REPLACED等广播
-         * 必须要加package scheme
-         * 如果一个Listener指定它需要scheme等uri信息，那么这种类型的action无法和其他类型的action合并
+         * 如果一个Listener需要scheme，那么这种类型的action无法和其他类型的action合并。
+         * 像PACKAGE_ADD,PACKAGE_REMOVED,PACKAGE_REPLACED等广播就必须要加package scheme。
          *
          * 如果需要添加scheme信息，App实现Listener的时候，覆写该方法，返回需要添加的scheme
          * @return
@@ -95,12 +100,26 @@ public class BroadcastBridge {
             return null;
         }
 
+        /**
+         * 如果一个Listener需要广播发送者有permission，那么这种类型的广播无法和其他类型合并。
+         * App实现Listener的时候，覆写该方法，返回需要广播发送者具有的permission
+         * @return
+         */
         public String getBroadcastPermission() {
             return null;
         }
 
+        /**
+         * Listener的名字作为判断两个Listener是否相等的唯一标识，用于判断Listener是否重复注册，
+         * 所以每个Listener需要有一个全局唯一的名字。
+         * Listener不允许重复注册，否则可能会导致多次回调，影响性能，并且可能影响业务逻辑。
+         * 该方法定义为final，不允许子类覆盖。
+         *
+         * @param o
+         * @return
+         */
         @Override
-        public boolean equals(Object o) {
+        public final boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || !(o instanceof Listener)) return false;
             Listener that = (Listener) o;
@@ -114,25 +133,31 @@ public class BroadcastBridge {
 
         @Override
         public String toString() {
-            return "BroadcastListener " + mName;
+            return "Listener " + mName;
         }
 
         /**
          * 该方法在主线程中回调，APP可以根据自己的业务逻辑，将回调的intent放到子线程中处理,
          * 切勿在主线程中执行耗时操作
+         *
          * @param intent
          */
         public abstract void onReceiveBroadcast(Intent intent);
     }
 
     /**
-     * 将所有的action合并到一个全局的receiver中，相当于使用一个receiver监听所有的广播
+     * 将所有的action合并到一个全局的category中，该category对应一个全局的receiver，相当于使用一个receiver
+     * 监听所有的广播。
      *
      * 注意:
-     * 如果一个进程中监听的广播不是同一个类别的，该策略不能很好的工作。
+     *
+     * 如果一个进程中监听的广播不是相关的，该策略不能很好的工作。
      * 比如，SCREEN_ON和PACKAGE_ADD合并到一起来监听，但是监听PACKAGE_ADD需要在IntentFilter中添加
-     * package scheme，但是添加了package scheme后，就无法接收SCREEN_ON广播
-     * 所以，除非应用中所有的广播都不需要scheme, type等uri信息，才考虑使用该策略，否则不要使用该策略
+     * package scheme，但是添加了package scheme后，就无法接收SCREEN_ON广播。
+     *
+     * 如果两个广播需要发送端具有的权限不一致，或者有的需要权限，有的不需要权限，该策略也不能很好的工作。
+     *
+     * 所以，除非应用中所有的广播都不需要scheme,permission等特殊信息，才考虑使用该策略，否则不要使用该策略
      */
     public static final String MERGE_GLOBAL = "MergeGlobal";
 
@@ -141,8 +166,10 @@ public class BroadcastBridge {
      * category中；PACKAGE_ADDED,PACKAGE_REPLACED和PACKAGE_REMOVED合并到package category中)。
      * 每个category对应一个receiver对象。
      *
-     * 在MergePolicyAuto中预定义了这些category,每个category对应一个或多个action, 如果业务层传入的action
-     * 不在预定义的category中，那个这个action作为一个独立的category
+     * 在MergePolicyAuto中预定义了这些category,每个category对应一个或多个action, 如果App定义的Listener
+     * 中的action不在预定义的category中，那个这个action作为一个独立的category
+     *
+     * 该Policy要求每个Listener中的多个action都属于同一category
      */
     public static final String MERGE_AUTO = "MergeAuto";
 
@@ -152,7 +179,7 @@ public class BroadcastBridge {
      * 使用一个Receiver来监听。
      *
      * 该策略是为了解决不同scheme的IntentFilter无法合并的问题。比如PACKAGE_XXX广播必须指定scheme
-     * 为package,如果把这个广播和其他不需要scheme的广播合并到一个IntentFilter中，会导致其他广播
+     * 为package,如果把这个广播和其他不需要scheme的广播共用一个IntentFilter，会导致其他广播
      * 无法接收
      */
     public static final String MERGE_SCHEME = "MergeScheme";
@@ -162,13 +189,14 @@ public class BroadcastBridge {
      * 使用一个Receiver来监听。
      *
      * 该策略是为了解决不同permission的IntentFilter无法合并的问题。如果一个广播必须限定发送者必须有一个特定的权限，
-     * 把这个广播和其他不需要permission的广播合并到一个IntentFilter中，会导致其他广播无法接收
+     * 让这个广播和其他不需要permission的广播合并在一起共用一个IntentFilter，会导致其他广播无法接收。
      */
     public static final String MERGE_PERMISSION = "MergePermission";
 
     /**
-     * 不进行合并，每个Listener对应一个receiver
-     * 这种方式可能不能很好的达到合并重复广播的效果,不推荐使用
+     * 不进行合并，每个Listener对应一个receiver。
+     * 这种方式可能不能很好的达到合并重复广播的效果,不推荐使用。
+     * 目前版本不支持。
      */
     //public static final String MERGE_NONE = "MergeNone";
 
@@ -265,7 +293,7 @@ public class BroadcastBridge {
     }
 
 
-    public synchronized boolean registerBroadcastListener(Listener listener) {
+    public synchronized boolean registerListener(Listener listener) {
 
         if (listener == null) {
             return false;
@@ -273,7 +301,7 @@ public class BroadcastBridge {
         return mPolicy.registerListener(listener);
     }
 
-    public synchronized boolean unregisterBroadcastListener(Listener listener) {
+    public synchronized boolean unregisterListener(Listener listener) {
         if (listener == null) {
             return false;
         }

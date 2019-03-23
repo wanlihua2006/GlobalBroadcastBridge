@@ -4,12 +4,12 @@ import android.content.Context;
 import android.text.TextUtils;
 
 /**
- * 如果App中注册的广播需要指定permission,可以使用该MergePolicy
+ * 如果App中注册的广播需要指定permission,可以使用该Policy
  *
  * 该MergePolicy会将相同permission的Listener合并到一个category中
  * 没有指定scheme的Listener合并到一个叫做permission:non的category中
  *
- * 如果该类不能满足App的要求，建议App参考该类，实现自己的MergePolicy
+ * 如果该类不能满足App的要求，建议App参考该类实现自己的Policy
  */
 public class MergePolicyPermission extends MergePolicyBase {
     public MergePolicyPermission(Context context, String name) {

@@ -10,7 +10,7 @@ import java.util.List;
  * 该MergePolicy会将相同scheme的Listener合并到一个category中
  * 没有指定scheme的Listener合并到一个叫做scheme:non的category中
  *
- * 如果该类不能满足App的要求，建议App参考该类，实现自己的MergePolicy
+ * 如果该类不能满足App的要求，建议App参考该类实现自己的MergePolicy
  */
 public class MergePolicyScheme extends MergePolicyBase {
 
@@ -19,7 +19,7 @@ public class MergePolicyScheme extends MergePolicyBase {
     }
 
     /**
-     * 在该方法中按照scheme为listener分类
+     * 在该方法中按照scheme为Listener分类
      *
      * @param listener
      * @return

@@ -24,7 +24,7 @@ public class TestApplication extends Application {
         //mBridge.init(this, BroadcastBridge.MERGE_GLOBAL);
 
         //测试MERGE_AUTO
-        //mBridge.init(this, BroadcastBridge.MERGE_AUTO);
+        mBridge.init(this);
 
         //测试MERGE_SCHEME
         //mBridge.init(this, BroadcastBridge.MERGE_SCHEME);
@@ -33,7 +33,7 @@ public class TestApplication extends Application {
         //mBridge.init(this, BroadcastBridge.MERGE_PERMISSION);
 
         //测试自定义Policy
-        mBridge.init(this, new MergePolicyCustom(this,"MergeCustom"));
+        //mBridge.init(this, new MergePolicyCustom(this,"MergeCustom"));
 
     }
 

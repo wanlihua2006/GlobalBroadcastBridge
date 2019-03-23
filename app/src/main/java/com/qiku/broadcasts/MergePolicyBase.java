@@ -10,6 +10,10 @@ import android.util.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 各个MergePolicy的基类，所有Policy都是从该类继承。
+ * Broadcast中提供几种预置的Policy，如果不满足App的需求，App可以继承该类实现自定义的Policy。
+ */
 public abstract class MergePolicyBase implements IMergePolicy {
 
     /**
@@ -32,13 +36,12 @@ public abstract class MergePolicyBase implements IMergePolicy {
 
         /**
          * 添加新的Listener到当前Receiver中
-         * 如果新的Listener影响了当前Receiver的action或优先级，那么该receiver需要重新注册
          * @param listener 要添加的Listener
          * @return 是否成功添加了Listener
          */
         boolean addListener(BroadcastBridge.Listener listener) {
 
-            BroadcastBridgeLog.i(mCategory, ">>> add listener start : " + listener);
+            BroadcastBridgeLog.i(mCategory, "*** add listener start : " + listener + " <<<");
 
             // listener不能注册多次,否则会进行多余的回调
             if (mListeners.contains(listener)) {
@@ -57,7 +60,7 @@ public abstract class MergePolicyBase implements IMergePolicy {
                         }
                     }
                 } else {
-                    String msgErr = "Current merge policy " + getMergePolicyName() +
+                    String msgErr = "current merge policy " + getMergePolicyName() +
                             " do not support scheme";
 
                     // TODO : 为了调试方便，只打印日志并返回false，在正式代码中最好抛出异常
@@ -76,7 +79,7 @@ public abstract class MergePolicyBase implements IMergePolicy {
                     mPermission = permission;
                 } else {
                     // TODO : 为了调试方便，只打印日志并返回false，在正式代码中最好抛出异常
-                    String msgErr = "Current merge policy " + getMergePolicyName() +
+                    String msgErr = "current merge policy " + getMergePolicyName() +
                             " do not support permission";
                     BroadcastBridgeLog.e(mCategory,  msgErr + ", " + listener + " not added !!!");
                     return false;
@@ -115,7 +118,7 @@ public abstract class MergePolicyBase implements IMergePolicy {
                         "should be registered again");
                 registerAgain();
             }
-            BroadcastBridgeLog.i(mCategory, ">>> add listener end  : " + listener + "\n");
+            BroadcastBridgeLog.i(mCategory, "*** add listener end  : " + listener + " <<<");
            return true;
         }
 
@@ -128,7 +131,7 @@ public abstract class MergePolicyBase implements IMergePolicy {
          */
         boolean removeListener(BroadcastBridge.Listener listener) {
 
-            BroadcastBridgeLog.i(mCategory, ">>> remove listener start : " + listener);
+            BroadcastBridgeLog.i(mCategory, "*** remove listener start : " + listener + " <<<");
 
             boolean removed = mListeners.remove(listener);
             if (!removed) {
@@ -191,7 +194,7 @@ public abstract class MergePolicyBase implements IMergePolicy {
                 registerAgain();
             }
 
-            BroadcastBridgeLog.i(mCategory, ">>> remove listener end  : " + listener + "\n");
+            BroadcastBridgeLog.i(mCategory, "*** remove listener end  : " + listener + " <<<");
 
             return false;
         }

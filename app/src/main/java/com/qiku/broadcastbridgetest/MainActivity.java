@@ -134,41 +134,41 @@ public class MainActivity extends AppCompatActivity {
             sendBroadcast(intent);
         });
 
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener);
+        BroadcastBridge.getInstance().registerListener(mScreenListener);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener1);
+        BroadcastBridge.getInstance().registerListener(mScreenListener1);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener2);
+        BroadcastBridge.getInstance().registerListener(mScreenListener2);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener3);
+        BroadcastBridge.getInstance().registerListener(mScreenListener3);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener4);
+        BroadcastBridge.getInstance().registerListener(mScreenListener4);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener5);
+        BroadcastBridge.getInstance().registerListener(mScreenListener5);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener6);
+        BroadcastBridge.getInstance().registerListener(mScreenListener6);
         sleep(100);
-        BroadcastBridge.getInstance().registerBroadcastListener(mScreenListener7);
+        BroadcastBridge.getInstance().registerListener(mScreenListener7);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener1);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener1);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener2);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener2);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener3);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener3);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener4);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener4);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener5);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener5);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener6);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener6);
         sleep(100);
-        BroadcastBridge.getInstance().unregisterBroadcastListener(mScreenListener7);
+        BroadcastBridge.getInstance().unregisterListener(mScreenListener7);
     }
 
     private static void sleep(long millis) {

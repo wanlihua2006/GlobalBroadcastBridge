@@ -7,6 +7,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * 该Policy为系统中的常用广播进行了默认分类(category)，如PACKAGE_ADD属于package这个category,
+ * SCREEN_ON属于keyguard这个category。
+ *
+ * 每个category对应一个Receiver。
+ *
+ * 在使用该Policy时，按照预先定义的分类合并Listener中的action，
+ * 如果一个Listener中有多个action，要求这些action属于同一个category。
+ */
 public class MergePolicyAuto extends MergePolicyBase {
 
     static class Category {
@@ -151,13 +160,25 @@ public class MergePolicyAuto extends MergePolicyBase {
         return temp.iterator().next();
     }
 
+    /**
+     * 因为该Policy要求每个Listener中的多个action同属于同一category，
+     * 只要App定义Listener的时候，让所有的action对应相同的scheme,该Policy可以支持合并带scheme的Listener。
+     *
+     * 比如App定义的Listener监听PACKAGE_ADDED和PACKAGE_REMOVED，这两个action需要指定相同的package scheme。
+     *
+     * @return
+     */
     @Override
     public boolean isSchemeSupported() {
         return true;
     }
 
+    /**
+     * 只要Listener中多个action要求的permission一致，支持合并要求permission的Listener
+     * @return
+     */
     @Override
     public boolean isPermissionSupported() {
-        return false;
+        return true;
     }
 }
